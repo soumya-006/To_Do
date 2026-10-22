@@ -1,0 +1,19 @@
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Node dependencies
+node_modules/
+
+# Android / Gradle generated files
+.gradle/
+**/.gradle/
+android/.gradle/
+**/build/
+**/Pods/
+
+# Logs and operating system files
+*.log
+.DS_Store
