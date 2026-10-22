@@ -18,13 +18,14 @@ let isMongoConnected = false;
 export const connectDB = async (): Promise<void> => {
   try {
     const conn = await mongoose.connect(MONGODB_URI, {
-      serverSelectionTimeoutMS: 3000,
+      serverSelectionTimeoutMS: 10000,
     });
     isMongoConnected = true;
     console.log(`[db] Connected to MongoDB: ${conn.connection.host}`);
-  } catch (err: any) {
+  } catch (err) {
     isMongoConnected = false;
-    console.log(`[db] Notice: Running in-memory database mode for zero-setup local dev.`);
+    console.error('[db] MongoDB connection failed:', err);
+    throw err;
   }
 };
 
@@ -1068,14 +1069,21 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 });
 
 export const start = async () => {
-  connectDB();
+  try {
+    await connectDB();
+  } catch {
+    console.log('[db] Using in-memory storage for this run.');
+  }
+
   app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`);
   });
 };
 
 if (process.env.NODE_ENV !== 'test') {
-  start();
+  start().catch((err) => {
+    console.error('[server] Startup failed:', err.message);
+  });
 }
 
 export default app;
